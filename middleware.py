@@ -20,7 +20,7 @@ def insert_into_packet(json):
 def insert_into_alert(json):
     conn = sqlite3.connect('aegis.db')
     c = conn.cursor()
-    c.execute(f"INSERT INTO Alerts (datetime, threat, description) VALUES ('{datetime.now()}','Malicious IP detected','Your device has contacted a possibly malicious IP')")
+    c.execute(f"INSERT INTO Alerts (datetime, threat, description) VALUES ('{datetime.now()}','Malicious IP detected','Your device has contacted a possibly malicious IP: {json['src_ip']}')")
     conn.commit()
     conn.close()
 
@@ -30,9 +30,10 @@ def processor(json):
 def malicious_ip_rule(json):
     conn = sqlite3.connect('aegis.db')
     c = conn.cursor()
-    c.execute(f"SELECT * FROM malicious_ip WHERE ip = ?", (json["src_ip"],))
+    c.execute(f"SELECT * FROM malicious_ip WHERE ip = '{json['src_ip']}'")
     result = c.fetchone()
     if result is not None:
+        print("HEREEEE")
         try:
             alert.send_mail_alert_alternative(
                 subject="Possibly Malicious IP Hit Detected",
