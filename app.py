@@ -32,7 +32,7 @@ def home():
 @app.route("/process-logs", methods = ['POST'])
 def processor(): 
     data = request.get_json()
-    print(data)
+    print(data["time"])
     middleware.insert_into_packet_2(data)
     middleware.processor(data)
     return "HELLO"
