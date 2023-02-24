@@ -45,3 +45,12 @@ def malicious_ip_rule(json):
             print("An error occurred:", e)
     conn.commit()
     conn.close()
+
+def get_all_alerts():
+    conn = sqlite3.connect('aegis.db')
+    cur = conn.cursor()
+    query = "SELECT * FROM Alerts;"
+    cur.execute(query)
+    rows = cur.fetchall()
+    conn.close()
+    return rows

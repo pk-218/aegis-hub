@@ -22,12 +22,12 @@ mail.init_app(app)
 
 @app.route('/', methods=['GET'])
 def home():
-    return render_template('index.html')
+    alerts = middleware.get_all_alerts()
+    return render_template('index.html', alerts=alerts)
 
 @app.route("/process-logs", methods = ['GET'])
 def processor(): 
-   # data = json.loads(request.get_json()) # data is python dictionary
-    data = {'id':234274, 'process_id':232, 'inode':343, 'src_ip':'1.1.1.1', 'dst_ip':'1.1.1.1', 'protocol':'HTTPS', 'packet_size':2333}
+    data = request.get_json()
     middleware.insert_into_packet(data)
     middleware.processor(data)
     return "HELLO"
