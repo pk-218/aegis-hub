@@ -60,6 +60,16 @@ def insert_into_alert(json):
 def processor(json):
     malicious_ip_rule(json)
 
+def get_all_alerts():
+    conn = sqlite3.connect('aegis.db')
+    cur = conn.cursor()
+    query = "SELECT * FROM Alerts;"
+    cur.execute(query)
+    rows = cur.fetchall()
+    conn.close()
+    return rows
+
+#rules
 def malicious_ip_rule(json):
     conn = sqlite3.connect('aegis.db')
     c = conn.cursor()
@@ -79,11 +89,35 @@ def malicious_ip_rule(json):
     conn.commit()
     conn.close()
 
-def get_all_alerts():
-    conn = sqlite3.connect('aegis.db')
-    cur = conn.cursor()
-    query = "SELECT * FROM Alerts;"
-    cur.execute(query)
-    rows = cur.fetchall()
-    conn.close()
-    return rows
+
+def detect_dos_attack(json):
+    # establish a connection to your database
+    db = sqlite3.connect("aegis.db")
+
+    ip_address = json['src_ip']
+    
+    # create a cursor object to execute SQL queries
+    cursor = db.cursor()
+    
+    # execute the SQL query to count the number of requests from the given IP address in the last 5 minutes
+    query = "SELECT COUNT(*) AS num_requests FROM your_table_name WHERE IP_address = ? AND time BETWEEN strftime('%s', 'now', '-5 minutes') AND strftime('%s', 'now')"
+    cursor.execute(query, (ip_address,))
+    
+    # fetch the query results
+    result = cursor.fetchone()
+    
+    # close the database connection and cursor
+    cursor.close()
+    db.close()
+    
+    # determine if the number of requests is above a certain threshold (e.g., 100)
+    if result[0] > 100:
+        try:
+            alert.send_mail_alert_alternative(
+                subject="Brute Force attack!!",
+                sender='fryyoudude@gmail.com',
+                recipients=['thakareprasad80@gmail.com'],
+                body="Someone is trying to flood your server with multiple requests"
+            )
+        except Exception as e:
+            print("An error occurred:", e)
