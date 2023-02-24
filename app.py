@@ -1,4 +1,5 @@
 from flask import Flask, request, render_template
+from flask_mailman import Mail
 import os
 import json
 import middleware
@@ -16,16 +17,17 @@ app.config['MAIL_USE_SSL'] = True
 from models import db, Packet
 
 db.init_app(app)
+mail = Mail()
+mail.init_app(app)
 
 @app.route('/', methods=['GET'])
 def home():
     return render_template('index.html')
 
-@app.route("/process-logs", methods = ['POST'])
+@app.route("/process-logs", methods = ['GET'])
 def processor(): 
-    data = request.get_json() # data is python dictionary
-    print(data)
-    middleware.insert_into_packet_2(data)
+    data = json.loads(request.get_json()) # data is python dictionary
+    middleware.insert_into_packet(data)
     middleware.processor(data)
     return "HELLO"
 
