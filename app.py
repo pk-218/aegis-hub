@@ -42,7 +42,7 @@ def mail():
 def sms():
     alert.send_sms_alert(
         title="Hello",
-        desc="Hello nigga!"
+        desc="Hello!"
     )
 
     return "Hello"
