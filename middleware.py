@@ -121,3 +121,25 @@ def detect_dos_attack(json):
             )
         except Exception as e:
             print("An error occurred:", e)
+            
+
+def detect_udp_flood(json):
+    # Connect to the database
+    conn = sqlite3.connect('aegis.db')
+    c = conn.cursor()
+
+    ip_address = json['src_ip']
+
+    # Query the database to get the number of UDP packets and the total packet size received from the IP address in the last 5 minutes
+    query = f"SELECT COUNT(*), SUM(packet_size) FROM your_table_name WHERE IP_address = '{ip_address}' AND protocol = 'UDP' AND time BETWEEN strftime('%s', 'now', '-5 minutes') AND strftime('%s', 'now')"
+    c.execute(query)
+    num_udp_packets, total_packet_size = c.fetchone()
+
+    # Close the database connection
+    conn.close()
+
+    # Check if the number of UDP packets received or the total packet size is above the threshold for a UDP flood attack
+    if num_udp_packets > 100 or total_packet_size > 1048576: # 1 MB in bytes
+        return True
+    else:
+        return False
