@@ -15,7 +15,7 @@ rows = cur.fetchall()
 
 # Print the results
 for row in rows:
-    print(row[0])
+    print(row)
 
 # Close the database connection
 conn.close()
