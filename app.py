@@ -20,15 +20,18 @@ db.init_app(app)
 mail = Mail()
 mail.init_app(app)
 
-@app.route('/', methods=['GET'])
+
+@app.route('/create_table', methods=['GET'])
 def home():
+
+    middleware.create_table()
     alerts = middleware.get_all_alerts()
     return render_template('index.html', alerts=alerts)
 
-@app.route("/process-logs", methods = ['GET'])
+@app.route("/process-logs", methods = ['POST'])
 def processor(): 
     data = request.get_json()
-    middleware.insert_into_packet(data)
+    middleware.insert_into_packet_2(data)
     middleware.processor(data)
     return "HELLO"
 

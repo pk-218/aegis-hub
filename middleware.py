@@ -10,10 +10,27 @@ app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
 app.config['MAIL_USE_TLS'] = False
 app.config['MAIL_USE_SSL'] = True
 
+print("Wow!")
+
+def create_table():
+    conn = sqlite3.connect('aegis.db')
+    c = conn.cursor()
+    c.execute(f"CREATE TABLE Packet1(id int PRIMARY_KEY AUTO_INCREMENT, src_ip text, dest_ip text, src_port int, dest_port int, protocol int,size int);")
+    conn.commit()
+    # conn.close()
+
+    c.execute(f"CREATE TABLE Malicious_ip(ip text);")
+    conn.commit()
+    # conn.close()
+
+    c.execute(f"CREATE TABLE Alerts(datetime text, threat, description);")
+    conn.commit()
+    conn.close()
+
 def insert_into_packet_2(json):
     conn = sqlite3.connect('aegis.db')
     c = conn.cursor()
-    c.execute(f"INSERT INTO Packet (src_ip, dest_ip, src_port, dest_port, protocol, size) VALUES (?,?,?,?,?,?);", (json["src_ip"], json["dest_ip"], json["src_port"], json["dest_port"], json["protocol"], json["size"]))
+    c.execute(f"INSERT INTO Packet1 (src_ip, dest_ip, src_port, dest_port, protocol, size) VALUES (?,?,?,?,?,?);", (json["src_ip"], json["dest_ip"], json["src_port"], json["dest_port"], json["protocol"], json["size"]))
     conn.commit()
     conn.close()
 
