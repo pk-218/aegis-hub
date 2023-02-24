@@ -25,12 +25,14 @@ mail.init_app(app)
 def home():
 
     middleware.create_table()
+    middleware.insert_into_malicious_ip()
     alerts = middleware.get_all_alerts()
     return render_template('index.html', alerts=alerts)
 
 @app.route("/process-logs", methods = ['POST'])
 def processor(): 
     data = request.get_json()
+    print(data)
     middleware.insert_into_packet_2(data)
     middleware.processor(data)
     return "HELLO"

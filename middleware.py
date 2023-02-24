@@ -35,6 +35,14 @@ def insert_into_packet_2(json):
     conn.close()
 
 
+def insert_into_malicious_ip():
+    conn = sqlite3.connect('aegis.db')
+    c = conn.cursor()
+    c.execute(f"INSERT INTO Malicious_ip (ip) VALUES ('1.1.1.1');")
+    conn.commit()
+    conn.close()
+
+
 def insert_into_packet(json):
     conn = sqlite3.connect('aegis.db')
     c = conn.cursor()
