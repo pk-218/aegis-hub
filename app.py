@@ -1,4 +1,5 @@
 from flask import Flask, request, render_template, session, redirect, url_for
+from flask_mailman import Mail
 import os
 import json
 import middleware
@@ -16,6 +17,9 @@ app.config['MAIL_USE_SSL'] = True
 from models import db, Packet, User
 
 db.init_app(app)
+mail = Mail()
+mail.init_app(app)
+
 
 from flask_sqlalchemy import SQLAlchemy
 app = Flask(__name__)
@@ -24,7 +28,7 @@ db = SQLAlchemy(app)
 
 
 
-# @app.route('/login-render', methods=['GET', 'POST'])
+# @app.route('/login-rendercreate_table', methods=['GET', 'POST'])
 @app.route('/', methods=['GET', 'POST'])
 def login():
     if request.method == 'GET':
@@ -44,12 +48,17 @@ def login():
 
 @app.route('/action-center', methods=['GET','POST'])
 def home():
-    return render_template('index.html')
+
+    middleware.create_table()
+    middleware.insert_into_malicious_ip()
+    alerts = middleware.get_all_alerts()
+    return render_template('index.html', alerts=alerts)
 
 @app.route("/process-logs", methods = ['POST'])
 def processor(): 
-    data = json.loads(request.get_json()) # data is python dictionary
-    middleware.insert_into_packet(data)
+    data = request.get_json()
+    print(int(data["time"][21:28]))
+    middleware.insert_into_packet_2(data)
     middleware.processor(data)
     return "HELLO"
 

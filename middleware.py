@@ -10,6 +10,39 @@ app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
 app.config['MAIL_USE_TLS'] = False
 app.config['MAIL_USE_SSL'] = True
 
+print("Wow!")
+
+def create_table():
+    conn = sqlite3.connect('aegis.db')
+    c = conn.cursor()
+    c.execute(f"CREATE TABLE Packet1(id int PRIMARY_KEY AUTO_INCREMENT, src_ip text, dest_ip text, src_port int, dest_port int, protocol int,size int);")
+    conn.commit()
+    # conn.close()
+
+    c.execute(f"CREATE TABLE Malicious_ip(ip text);")
+    conn.commit()
+    # conn.close()
+
+    c.execute(f"CREATE TABLE Alerts(datetime text, threat, description);")
+    conn.commit()
+    conn.close()
+
+def insert_into_packet_2(json):
+    conn = sqlite3.connect('aegis.db')
+    c = conn.cursor()
+    c.execute(f"INSERT INTO Packet1 (src_ip, dest_ip, src_port, dest_port, protocol, size) VALUES (?,?,?,?,?,?);", (json["src_ip"], json["dest_ip"], json["src_port"], json["dest_port"], json["protocol"], json["size"]))
+    conn.commit()
+    conn.close()
+
+
+def insert_into_malicious_ip():
+    conn = sqlite3.connect('aegis.db')
+    c = conn.cursor()
+    c.execute(f"INSERT INTO Malicious_ip (ip) VALUES ('1.1.1.1');")
+    conn.commit()
+    conn.close()
+
+
 def insert_into_packet(json):
     conn = sqlite3.connect('aegis.db')
     c = conn.cursor()
@@ -20,7 +53,7 @@ def insert_into_packet(json):
 def insert_into_alert(json):
     conn = sqlite3.connect('aegis.db')
     c = conn.cursor()
-    c.execute(f"INSERT INTO Alerts (datetime, threat, description) VALUES ('{datetime.now()}','Malicious IP detected','Your device has contacted a possibly malicious IP')")
+    c.execute(f"INSERT INTO Alerts (datetime, threat, description) VALUES ('{datetime.now()}','Malicious IP detected','Your device has contacted a possibly malicious IP: {json['src_ip']}')")
     conn.commit()
     conn.close()
 
@@ -30,9 +63,10 @@ def processor(json):
 def malicious_ip_rule(json):
     conn = sqlite3.connect('aegis.db')
     c = conn.cursor()
-    c.execute(f"SELECT * FROM malicious_ip WHERE ip = ?", (json["src_ip"],))
+    c.execute(f"SELECT * FROM malicious_ip WHERE ip = '{json['src_ip']}'")
     result = c.fetchone()
     if result is not None:
+        print("HEREEEE")
         try:
             alert.send_mail_alert_alternative(
                 subject="Possibly Malicious IP Hit Detected",
@@ -44,3 +78,12 @@ def malicious_ip_rule(json):
             print("An error occurred:", e)
     conn.commit()
     conn.close()
+
+def get_all_alerts():
+    conn = sqlite3.connect('aegis.db')
+    cur = conn.cursor()
+    query = "SELECT * FROM Alerts;"
+    cur.execute(query)
+    rows = cur.fetchall()
+    conn.close()
+    return rows
