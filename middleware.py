@@ -10,6 +10,14 @@ app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
 app.config['MAIL_USE_TLS'] = False
 app.config['MAIL_USE_SSL'] = True
 
+def insert_into_packet_2(json):
+    conn = sqlite3.connect('aegis.db')
+    c = conn.cursor()
+    c.execute(f"INSERT INTO Packet (src_ip, dest_ip, src_port, dest_port, protocol, size) VALUES (?,?,?,?,?,?);", (json["src_ip"], json["dest_ip"], json["src_port"], json["dest_port"], json["protocol"], json["size"]))
+    conn.commit()
+    conn.close()
+
+
 def insert_into_packet(json):
     conn = sqlite3.connect('aegis.db')
     c = conn.cursor()

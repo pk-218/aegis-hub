@@ -23,8 +23,9 @@ def home():
 
 @app.route("/process-logs", methods = ['POST'])
 def processor(): 
-    data = json.loads(request.get_json()) # data is python dictionary
-    middleware.insert_into_packet(data)
+    data = request.get_json() # data is python dictionary
+    print(data)
+    middleware.insert_into_packet_2(data)
     middleware.processor(data)
     return "HELLO"
 
