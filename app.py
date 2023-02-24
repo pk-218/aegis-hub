@@ -1,5 +1,4 @@
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
 import alert
 import os
 
@@ -12,23 +11,20 @@ app.config['MAIL_USERNAME'] = 'fryyoudude@gmail.com'
 app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
 app.config['MAIL_USE_TLS'] = False
 app.config['MAIL_USE_SSL'] = True
-db = SQLAlchemy(app)
 
-class Packet(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    process_id = db.Column(db.Integer)
-    inode = db.Column(db.Integer)
-    src_ip = db.Column(db.String(45))
-    dst_ip = db.Column(db.String(45))
-    protocol = db.Column(db.String(10))
-    packet_size = db.Column(db.Integer)
+from models import db, Packet
+
+db.init_app(app)
 
 @app.route("/add-entry")
 def home():
-    # db.session.execute('SHOW tables;')
-    new_packet = Packet(process_id=1234, inode=5678, src_ip='192.168.0.1', dst_ip='192.168.0.2', protocol='TCP', packet_size=1500)
-    db.session.add(new_packet)
-    db.session.commit()
+    with app.app_context():
+        packet = Packet(process_id=1234, inode=5678, src_ip='192.168.1.1', dst_ip='192.168.1.2', protocol='tcp', packet_size=100)
+        db.session.add(packet)
+        db.session.commit()
+    # new_packet = Packet(process_id=1234, inode=5678, src_ip='192.168.0.1', dst_ip='192.168.0.2', protocol='TCP', packet_size=1500)
+    # db.session.add(new_packet)
+    # db.session.commit()
     return "Hello"
 
 @app.route("/mail")
@@ -42,11 +38,30 @@ def mail():
     )
     return "mail sent"
 
+@app.route("/sms-alert")
+def sms():
+    alert.send_sms_alert(
+        title="Hello",
+        desc="Hello nigga!"
+    )
+
+    return "Hello"
+
 if __name__ == "__main__":
     app.run(debug=True, port=8000)
 
+# @app.route('/', methods=['GET', 'POST'])
+# def hello_world():
+#     if request.method=='POST':
+#         title = request.form['title']
+#         desc = request.form['desc']
+#         alert.send_sms_alert(title, desc)
+#         todo = Todo(title=title, desc=desc)
+#         db.session.add(todo)
+#         db.session.commit()
+        
+#     allTodo = Todo.query.all() 
+#     return render_template('index.html', allTodo=allTodo)
 
-
-
-
-
+if __name__ == "__main__":
+    app.run(debug=True, port=8000)
