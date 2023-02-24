@@ -1,5 +1,5 @@
-from flask import Flask, render_template, request
 from flask_mail import Mail, Message
+from flask_mailman import EmailMessage
 from dotenv import load_dotenv
 import keys
 from twilio.rest import Client
@@ -19,3 +19,12 @@ def send_sms_alert(title, desc):
         to=keys.target_number
     )
     print(message.body)
+
+def send_mail_alert_alternative(subject, sender, recipients, body):
+    msg = EmailMessage(
+        subject=subject,
+        body=body,
+        from_email=sender,
+        to=recipients,
+    )
+    msg.send()
