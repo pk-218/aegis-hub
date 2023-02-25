@@ -1,7 +1,7 @@
 import sqlite3, alert, os
 from datetime import datetime
 from flask import Flask
-
+import requests
 app = Flask(__name__)
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 465
@@ -39,10 +39,10 @@ def insert_into_packet_2(json):
     conn.close()
 
 
-def insert_into_malicious_ip():
+def insert_into_malicious_ip(ip):
     conn = sqlite3.connect('aegis.db')
     c = conn.cursor()
-    c.execute(f"INSERT INTO Malicious_ip (ip) VALUES ('1.1.1.1');")
+    c.execute(f"INSERT INTO Malicious_ip (ip) VALUES ('{ip}');")
     conn.commit()
     conn.close()
 
@@ -77,7 +77,7 @@ def get_all_alerts():
     return rows
 
 #rules
-def malicious_ip_rule(json):
+def malicious_ip_rule():
     conn = sqlite3.connect('aegis.db')
     c = conn.cursor()
     c.execute(f"SELECT * FROM malicious_ip WHERE ip = '{json['src_ip']}'")
@@ -94,9 +94,9 @@ def malicious_ip_rule(json):
                 body="We have detected a malicious IP hit on your device"
             )
 
-        except Exception as e:
-            print("An error occurred:", e)
-    conn.commit()
+            except Exception as e:
+                print("An error occurred:", e)
+        conn.commit()
 
 
     conn.close()
