@@ -1,0 +1,96 @@
+/* Add a black background color to the top navigation */
+.topnav {
+  background-color: #172944;
+  overflow: hidden;
+}
+
+/* Style the links inside the navigation bar */
+.topnav a {
+  float: left;
+  color: #f2f2f2;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+  font-size: 17px;
+}
+
+/* Change the color of links on hover */
+.topnav a:hover {
+  background-color: #ddd;
+  color: black;
+}
+
+/* Add a color to the active/current link */
+.topnav a.active {
+  background-color: #4CAF50;
+  color: white;
+}
+
+/* Set the background color and font styles for the entire page */
+body {
+  background-color: #F6F7FB;
+  font-family: 'Roboto', sans-serif;
+}
+
+.card-header {
+  background-color: #dc3545; /* red */
+  color: white;
+}
+
+.btn-purple {
+  background-color: #8a2be2;
+  color: #fff;
+}
+
+.btn-purple:hover {
+  background-color: #9400d3;
+}
+
+
+
+/* Center the login card */
+.card {
+  margin: 50px auto;
+  width: 400px;
+}
+
+/* Style the login form */
+.card form {
+  padding: 20px;
+}
+
+.card h4 {
+  margin-bottom: 20px;
+}
+
+.card hr {
+  margin-top: 20px;
+}
+
+.card label {
+  font-weight: bold;
+}
+
+.card input[type="email"],
+.card input[type="password"] {
+  margin-bottom: 10px;
+}
+
+.card button {
+  background-color: #3B4F75;
+  border: none;
+  color: white;
+  font-weight: bold;
+}
+
+.card button:hover {
+  background-color: #5A6D99;
+}
+
+.card a {
+  color: #3B4F75;
+}
+
+/* .card border-primary {
+
+} */

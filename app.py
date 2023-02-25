@@ -1,34 +1,55 @@
-from flask import Flask
+from flask import Flask, render_template, flash, redirect, request, session, url_for
+from flask_mailman import Mail
+import os
+import middleware
 from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///aegis.db"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 465
+app.config['MAIL_USERNAME'] = 'fryyoudude@gmail.com'
+app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
+app.config['MAIL_USE_TLS'] = False
+app.config['MAIL_USE_SSL'] = True
+
+app.config['SECRET_KEY'] = 'thisismysecret'
+
+from auth import auth_bp
+
+app.register_blueprint(auth_bp)
+
 db = SQLAlchemy(app)
+mail = Mail()
+mail.init_app(app)
 
-class Packet(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    process_id = db.Column(db.Integer)
-    inode = db.Column(db.Integer)
-    src_ip = db.Column(db.String(45))
-    dst_ip = db.Column(db.String(45))
-    protocol = db.Column(db.String(10))
-    packet_size = db.Column(db.Integer)
 
-@app.route("/")
+@app.route('/')
+def home2():
+    if(session['logged_in']):
+        alerts = middleware.get_all_alerts()
+        return render_template('index.html', alerts=alerts)
+    else:
+        return redirect(url_for('auth_bp.login'))
+
+@app.route('/create_table', methods=['GET'])
 def home():
-    # db.session.execute('SHOW tables;')
-    new_packet = Packet(process_id=1234, inode=5678, src_ip='192.168.0.1', dst_ip='192.168.0.2', protocol='TCP', packet_size=1500)
-    db.session.add(new_packet)
-    db.session.commit()
-    return "Hello"
+    middleware.create_table()
+    middleware.insert_into_malicious_ip()
+    alerts = middleware.get_all_alerts()
+    # print(alerts)
+    return render_template('index.html', alerts=alerts)
+
+@app.route("/process-logs", methods = ['POST'])
+def processor(): 
+    data = request.get_json()
+    # print(int(data["time"][21:28]))
+    middleware.insert_into_packet_2(data)
+    middleware.processor(data)
+    return "HELLO"
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5000)
-
-
-
-
-
+    db.create_all()
+    app.run(debug=True, port=8000)
 
