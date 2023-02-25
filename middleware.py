@@ -5,6 +5,11 @@ import requests
 import json
 
 import requests
+import json
+
+import requests
+import time
+
 app = Flask(__name__)
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 465
@@ -32,12 +37,16 @@ def create_table():
 
     c.execute(f"INSERT INTO Malicious_ip (ip) values ('1.1.1.1');")
     conn.commit()
+
+    c.execute(f"CREATE TABLE Rules(function text);")
+    conn.commit()
+
     conn.close()
 
 def insert_into_packet_2(json):
     conn = sqlite3.connect('aegis.db')
     c = conn.cursor()
-    c.execute(f"INSERT INTO Packet1 (src_ip, dest_ip, src_port, dest_port, protocol, size) VALUES (?,?,?,?,?,?);", (json["src_ip"], json["dest_ip"], json["src_port"], json["dest_port"], json["protocol"], json["size"]))
+    c.execute(f"INSERT INTO Packet1 (src_ip, dest_ip, src_port, dest_port, protocol, size, timestamp) VALUES (?,?,?,?,?,?,?);", (json["src_ip"], json["dest_ip"], json["src_port"], json["dest_port"], json["protocol"], json["size"], int(time.time())))
     conn.commit()
     conn.close()
 
@@ -133,7 +142,7 @@ def detect_dos_attack(json):
             )
         except Exception as e:
             print("An error occurred:", e)
-            
+
 
 def detect_udp_flood(json):
     # Connect to the database
@@ -164,10 +173,14 @@ def packet_length():
     res = c.fetchall()
     print(res)
     for i in res:
+        c.execute(f"select * from alerts where threat='Packet Length Exceeding';")
+        alerts = c.fetchall()        
         if i[0]>10000*1000:
-            print("ALERT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-            c.execute(f"INSERT INTO Alerts (datetime, threat, description) values('{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}', 'Packet Length Exceeding', 'Device is getting too many requests from a single IP {i[1]} for a long time');")
-            conn.commit()
+            for alert in alerts:
+                if i[1] not in alert:
+                    print("ALERT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+                    c.execute(f"INSERT INTO Alerts (datetime, threat, description) values('{str(datetime.now())}', 'Packet Length Exceeding', 'Device is getting too many requests from a single IP {i[1]} for a long time');")
+                    conn.commit()
     conn.close()
 
 def query_abuseipdb(ip):

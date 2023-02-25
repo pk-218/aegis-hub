@@ -1,32 +1,37 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<title>Flask Login</title>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<link rel="icon" type="image/png" href="{{ url_for('static', filename='images/icons/favicon.ico') }}"/>
-	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='vendor/bootstrap/css/bootstrap.min.css')}}">
-	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='fonts/font-awesome-4.7.0/css/font-awesome.min.css')}}">
-	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='fonts/Linearicons-Free-v1.0.0/icon-font.min.css')}}">
-	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='vendor/animate/animate.css')}}">
-	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='vendor/css-hamburgers/hamburgers.min.css')}}">
-	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='vendor/animsition/css/animsition.min.css')}}">
-	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='vendor/select2/select2.min.css')}}">
-	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='vendor/daterangepicker/daterangepicker.css')}}">
-	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/util.css')}}">
-	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/main.css')}}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <link rel="stylesheet" href="../static/main.css">
+    <title>Flask</title>
 </head>
 <body>
-{% block content %}{% endblock %}
-	<footer><p style="text-align:center;">Template courtesy: colorlib</p></footer>
-    <script src="{{ url_for('static', filename='vendor/jquery/jquery-3.2.1.min.js')}}"></script>
-    <script src="{{ url_for('static', filename='vendor/animsition/js/animsition.min.js')}}"></script>
-    <script src="{{ url_for('static', filename='vendor/bootstrap/js/popper.js')}}"></script>
-    <script src="{{ url_for('static', filename='vendor/bootstrap/js/bootstrap.min.js')}}"></script>
-    <script src="{{ url_for('static', filename='vendor/select2/select2.min.js')}}"></script>
-	<script src="{{ url_for('static', filename='vendor/daterangepicker/moment.min.js')}}"></script>
-	<script src="{{ url_for('static', filename='vendor/daterangepicker/daterangepicker.js')}}"></script>
-	<script src="{{ url_for('static', filename='vendor/countdowntime/countdowntime.js')}}"></script>
-	<script src="{{ url_for('static', filename='js/main.js')}}"></script>
+
+    <div class="container">
+
+        {% block body %}
+
+        {% endblock body %}
+    </div>
+    
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/typed.js/2.0.12/typed.min.js"></script>
+
+    <hr>
+
+    <script>
+        var typed = new Typed('#aegis', {
+            strings: ["AEGIS"],
+            backSpeed: 175,
+            typeSpeed: 100,
+            // loop: true,
+        });
+    </script>
 </body>
 </html>
