@@ -14,9 +14,9 @@ app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
 app.config['MAIL_USE_TLS'] = False
 app.config['MAIL_USE_SSL'] = True
 
-from models import db, Packet
+# from models import db, Packet
 
-db.init_app(app)
+# db.init_app(app)
 mail = Mail()
 mail.init_app(app)
 
@@ -48,20 +48,19 @@ def login():
 
 @app.route('/action-center', methods=['GET','POST'])
 def home():
-
-    middleware.create_table()
-    middleware.insert_into_malicious_ip()
     alerts = middleware.get_all_alerts()
+    # print(alerts)
     return render_template('index.html', alerts=alerts)
 
 @app.route("/process-logs", methods = ['POST'])
 def processor(): 
     data = request.get_json()
-    print(int(data["time"][21:28]))
+    # print(int(data["time"][21:28]))
     middleware.insert_into_packet_2(data)
     middleware.processor(data)
     return "HELLO"
 
 if __name__ == "__main__":
-    app.run(debug=True, port=8000)
+    # middleware.create_table()
+    app.run(debug=False, port=8000)
 
