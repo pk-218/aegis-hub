@@ -1,9 +1,8 @@
-from flask import Flask, request, render_template, session, redirect, url_for
+from flask import Flask, render_template, flash, redirect, request, session, url_for
 from flask_mailman import Mail
 import os
-import json
 import middleware
-import requests
+from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///aegis.db"
@@ -15,40 +14,28 @@ app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
 app.config['MAIL_USE_TLS'] = False
 app.config['MAIL_USE_SSL'] = True
 
-# from models import db, Packet
+app.config['SECRET_KEY'] = 'thisismysecret'
 
-# db.init_app(app)
+from auth import auth_bp
+
+app.register_blueprint(auth_bp)
+
+db = SQLAlchemy(app)
 mail = Mail()
 mail.init_app(app)
 
 
-from flask_sqlalchemy import SQLAlchemy
-app = Flask(__name__)
-# app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
-db = SQLAlchemy(app)
-
-
-
-# @app.route('/login-rendercreate_table', methods=['GET', 'POST'])
-@app.route('/', methods=['GET', 'POST'])
-def login():
-    if request.method == 'GET':
-        return render_template('login.html')
-    else:
+@app.route('/')
+def home2():
+    if(session['logged_in']):
         return render_template('index.html')
-        u = request.form['username']
-        p = request.form['password']
-        print(u, p)
-        data = User.query.filter_by(username=u, password=p).first()
-        print(data)
-        if data is not None:
-            print('logged in')
-            session['logged_in'] = True
-            return redirect(url_for('index'))
-        return render_template('login.html')
+    else:
+        return redirect(url_for('auth_bp.login'))
 
-@app.route('/action-center', methods=['GET','POST'])
+@app.route('/create_table', methods=['GET'])
 def home():
+    middleware.create_table()
+    middleware.insert_into_malicious_ip()
     alerts = middleware.get_all_alerts()
     # print(alerts)
     return render_template('index.html', alerts=alerts)
@@ -61,9 +48,7 @@ def processor():
     middleware.processor(data)
     return "HELLO"
 
-
 if __name__ == "__main__":
-    middleware.create_table()
-    # data = requests.get("https://www.abuseipdb.com/check/[IP]/json?key=[API_KEY]&days=1")
-    app.run(debug=False, port=8000)
+    db.create_all()
+    app.run(debug=True, port=8000)
 
