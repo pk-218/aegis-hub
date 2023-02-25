@@ -154,3 +154,17 @@ def detect_udp_flood(json):
         return True
     else:
         return False
+    
+def packet_length():
+    conn = sqlite3.connect('aegis.db')
+    c = conn.cursor()
+    query = f"SELECT SUM(size), dest_ip from Packet1 group by dest_ip;"
+    c.execute(query)
+    res = c.fetchall()
+    print(res)
+    for i in res:
+        if i>10000:
+            print("ALERT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+            c.execute(f"INSERT INTO Alerts (datetime, threat, description) values('{str(datetime.now())}', 'Packet Length Exceeding', 'Device is getting too many requests from a single IP for a long time');")
+            conn.commit()
+    conn.close()

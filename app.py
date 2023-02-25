@@ -14,9 +14,9 @@ app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
 app.config['MAIL_USE_TLS'] = False
 app.config['MAIL_USE_SSL'] = True
 
-from models import db, Packet
+# from models import db, Packet
 
-db.init_app(app)
+# db.init_app(app)
 mail = Mail()
 mail.init_app(app)
 
@@ -25,7 +25,7 @@ mail.init_app(app)
 @app.route('/', methods=['GET'])
 def home():
     alerts = middleware.get_all_alerts()
-    print(alerts)
+    # print(alerts)
     return render_template('index.html', alerts=alerts)
 
 @app.route("/process-logs", methods = ['POST'])
