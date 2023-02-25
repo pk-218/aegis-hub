@@ -164,8 +164,8 @@ def packet_length():
     res = c.fetchall()
     print(res)
     for i in res:
-        if i[0]>10000:
+        if i[0]>10000*1000:
             print("ALERT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-            c.execute(f"INSERT INTO Alerts (datetime, threat, description) values('{str(datetime.now())}', 'Packet Length Exceeding', 'Device is getting too many requests from a single IP for a long time');")
+            c.execute(f"INSERT INTO Alerts (datetime, threat, description) values('{str(datetime.now())}', 'Packet Length Exceeding', 'Device is getting too many requests from a single IP {i[1]} for a long time');")
             conn.commit()
     conn.close()
