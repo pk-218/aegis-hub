@@ -2,6 +2,9 @@ import sqlite3, alert, os
 from datetime import datetime
 from flask import Flask
 import requests
+import json
+
+import requests
 app = Flask(__name__)
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 465
@@ -57,7 +60,7 @@ def insert_into_packet(json):
 def insert_into_alert(json):
     conn = sqlite3.connect('aegis.db')
     c = conn.cursor()
-    c.execute(f"INSERT INTO Alerts (datetime, threat, description) VALUES ('{datetime.now()}','Malicious IP detected','Your device has contacted a possibly malicious IP: {json['src_ip']}')")
+    c.execute(f"INSERT INTO Alerts (datetime, threat, description) VALUES ('{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}','Malicious IP detected','Your device has contacted a possibly malicious IP: {json['src_ip']}')")
     conn.commit()
     conn.close()
 
@@ -82,10 +85,9 @@ def malicious_ip_rule(json):
     c = conn.cursor()
     c.execute(f"SELECT * FROM malicious_ip WHERE ip = '{json['src_ip']}'")
     result = c.fetchone()
-    if result is not None:
-        c.execute(f"INSERT INTO Alerts (datetime, threat, description) values('{str(datetime.now())}', 'Malicious IP', 'A request has been sent to a malicious IP: {json['src_ip']}');")
+    if result is not None or query_abuseipdb(json['src_ip'])["data"]["abuseConfidenceScore"] > 0:
+        c.execute(f"INSERT INTO Alerts (datetime, threat, description) values('{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}', 'Malicious IP', 'A request has been sent to a malicious IP: {json['src_ip']}');")
         conn.commit()
-        print("HEREEEE")
         try:
             alert.send_mail_alert_alternative(
                 subject="Possibly Malicious IP Hit Detected",
@@ -97,8 +99,6 @@ def malicious_ip_rule(json):
         except Exception as e:
             print("An error occurred:", e)
         conn.commit()
-
-
     conn.close()
 
 
@@ -159,13 +159,27 @@ def detect_udp_flood(json):
 def packet_length():
     conn = sqlite3.connect('aegis.db')
     c = conn.cursor()
-    query = f"SELECT SUM(size), dest_ip from Packet1 group by dest_ip;"
+    query = f"SELECT SUM(size), src_ip from Packet1 group by dest_ip;"
     c.execute(query)
     res = c.fetchall()
     print(res)
     for i in res:
         if i[0]>10000*1000:
             print("ALERT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-            c.execute(f"INSERT INTO Alerts (datetime, threat, description) values('{str(datetime.now())}', 'Packet Length Exceeding', 'Device is getting too many requests from a single IP {i[1]} for a long time');")
+            c.execute(f"INSERT INTO Alerts (datetime, threat, description) values('{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}', 'Packet Length Exceeding', 'Device is getting too many requests from a single IP {i[1]} for a long time');")
             conn.commit()
     conn.close()
+
+def query_abuseipdb(ip):
+    url = 'https://api.abuseipdb.com/api/v2/check'
+    querystring = {
+        'ipAddress': ip,
+        'maxAgeInDays': '90'
+    }
+    headers = {
+        'Accept': 'application/json',
+        'Key': 'aa2e90299f95874a4325793eb2316b7c94f24044ff2dbc6edb75f14c26ebc4fbe8ed136750c3ca64'
+    }
+    response = requests.request(method='GET', url=url, headers=headers, params=querystring)
+    decodedResponse = json.loads(response.text)
+    return decodedResponse
