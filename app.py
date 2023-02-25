@@ -14,7 +14,7 @@ app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
 app.config['MAIL_USE_TLS'] = False
 app.config['MAIL_USE_SSL'] = True
 
-from models import db, Packet, User
+from models import db, Packet
 
 db.init_app(app)
 mail = Mail()
