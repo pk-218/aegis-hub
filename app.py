@@ -34,7 +34,8 @@ def login():
     if request.method == 'GET':
         return render_template('login.html')
     else:
-        return render_template('index.html')
+        alerts = middleware.get_all_alerts()
+        return render_template('index.html', alerts=alerts)
         u = request.form['username']
         p = request.form['password']
         print(u, p)

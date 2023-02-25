@@ -15,15 +15,15 @@ print("Wow!")
 def create_table():
     conn = sqlite3.connect('aegis.db')
     c = conn.cursor()
-    c.execute(f"CREATE TABLE Packet1(id int PRIMARY_KEY AUTO_INCREMENT, src_ip text, dest_ip text, src_port int, dest_port int, protocol int,size int);")
+    c.execute(f"CREATE TABLE IF NOT EXISTS Packet1(id int PRIMARY_KEY AUTO_INCREMENT, src_ip text, dest_ip text, src_port int, dest_port int, protocol int,size int);")
     conn.commit()
     # conn.close()
 
-    c.execute(f"CREATE TABLE Malicious_ip(ip text);")
+    c.execute(f"CREATE TABLE IF NOT EXISTS Malicious_ip(ip text);")
     conn.commit()
     # conn.close()
 
-    c.execute(f"CREATE TABLE Alerts(datetime text, threat text, description text);")
+    c.execute(f"CREATE TABLE IF NOT EXISTS Alerts(datetime text, threat text, description text);")
     conn.commit()
     # conn.close()
 
@@ -83,7 +83,7 @@ def malicious_ip_rule(json):
     c.execute(f"SELECT * FROM malicious_ip WHERE ip = '{json['src_ip']}'")
     result = c.fetchone()
     if result is not None:
-        c.execute(f"INSERT INTO Alerts (datetime, threat, description) values('{str(datetime.now())}', 'Malicious IP', 'A request has been sent to a malicious IP');")
+        c.execute(f"INSERT INTO Alerts (datetime, threat, description) values('{str(datetime.now())}', 'Malicious IP', 'A request has been sent to a malicious IP: {json['src_ip']}');")
         conn.commit()
         print("HEREEEE")
         try:
