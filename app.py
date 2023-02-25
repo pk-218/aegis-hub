@@ -32,22 +32,16 @@ def home2():
     else:
         return redirect(url_for('auth_bp.login'))
 
-@app.route('/create_table', methods=['GET'])
-def home():
-    middleware.create_table()
-    middleware.insert_into_malicious_ip()
-    alerts = middleware.get_all_alerts()
-    return render_template('index.html', alerts=alerts)
-
 @app.route("/process-logs", methods = ['POST'])
 def processor(): 
     data = request.get_json()
-    print(int(data["time"][21:28]))
+    # print(int(data["time"][21:28]))
     middleware.insert_into_packet_2(data)
     middleware.processor(data)
     return "HELLO"
 
 if __name__ == "__main__":
     db.create_all()
-    app.run(debug=True, port=8000)
+    middleware.create_table()
+    app.run(debug=False, port=8000)
 

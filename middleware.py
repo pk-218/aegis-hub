@@ -60,6 +60,10 @@ def insert_into_alert(json):
 
 def processor(json):
     malicious_ip_rule(json)
+    detect_dos_attack(json)
+    detect_udp_flood(json)
+    packet_length()
+
 
 def get_all_alerts():
     conn = sqlite3.connect('aegis.db')
@@ -79,6 +83,7 @@ def malicious_ip_rule(json):
     if result is not None:
         print("HEREEEE")
         try:
+            
             alert.send_mail_alert_alternative(
                 subject="Possibly Malicious IP Hit Detected",
                 sender='fryyoudude@gmail.com',
@@ -101,25 +106,28 @@ def detect_dos_attack(json):
     cursor = db.cursor()
     
     # execute the SQL query to count the number of requests from the given IP address in the last 5 minutes
-    query = "SELECT COUNT(*) AS num_requests FROM your_table_name WHERE IP_address = ? AND time BETWEEN strftime('%s', 'now', '-5 minutes') AND strftime('%s', 'now')"
+    query = "SELECT COUNT(*) AS num_requests FROM Packet1 WHERE src_ip = ? AND timestamp BETWEEN strftime('%s', 'now', '-5 minutes') AND strftime('%s', 'now')"
     cursor.execute(query, (ip_address,))
     
     # fetch the query results
     result = cursor.fetchone()
+    # print(result[0])
     
     # close the database connection and cursor
     cursor.close()
     db.close()
     
     # determine if the number of requests is above a certain threshold (e.g., 100)
-    if result[0] > 100:
+    if result[0] > 50:
+        print("Oh nooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
         try:
-            alert.send_mail_alert_alternative(
-                subject="Brute Force attack!!",
-                sender='fryyoudude@gmail.com',
-                recipients=['thakareprasad80@gmail.com'],
-                body="Someone is trying to flood your server with multiple requests"
-            )
+            pass
+            # alert.send_mail_alert_alternative(
+            #     subject="Brute Force attack!!",
+            #     sender='fryyoudude@gmail.com',
+            #     recipients=['thakareprasad80@gmail.com'],
+            #     body="Someone is trying to flood your server with multiple requests"
+            # )
         except Exception as e:
             print("An error occurred:", e)
 
@@ -132,15 +140,51 @@ def detect_udp_flood(json):
     ip_address = json['src_ip']
 
     # Query the database to get the number of UDP packets and the total packet size received from the IP address in the last 5 minutes
-    query = f"SELECT COUNT(*), SUM(packet_size) FROM your_table_name WHERE IP_address = '{ip_address}' AND protocol = 'UDP' AND time BETWEEN strftime('%s', 'now', '-5 minutes') AND strftime('%s', 'now')"
+    query = f"SELECT COUNT(*), SUM(size) FROM Packet1 WHERE dest_ip = '{ip_address}' AND protocol = 'UDP' AND timestamp BETWEEN strftime('%s', 'now', '-5 minutes') AND strftime('%s', 'now')"
     c.execute(query)
     num_udp_packets, total_packet_size = c.fetchone()
-
+    print(num_udp_packets)
     # Close the database connection
     conn.close()
 
+    if type(num_udp_packets) == int and type(total_packet_size) == int:
     # Check if the number of UDP packets received or the total packet size is above the threshold for a UDP flood attack
-    if num_udp_packets > 100 or total_packet_size > 1048576: # 1 MB in bytes
-        return True
-    else:
-        return False
+        if (num_udp_packets > 100 or total_packet_size > 1048576): # 1 MB in bytes
+            print("Oh nooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+            try:
+                pass
+                # alert.send_mail_alert_alternative(
+                #     subject="Brute Force attack!!",
+                #     sender='fryyoudude@gmail.com',
+                #     recipients=['thakareprasad80@gmail.com'],
+                #     body="Someone is trying to flood your server with multiple requests"
+                # )
+            except Exception as e:
+                print("An error occurred:", e)
+        else:
+            print("lol")
+        
+
+
+    
+
+def packet_length():
+    conn = sqlite3.connect('aegis.db')
+    c = conn.cursor()
+    query = f"SELECT SUM(size), dest_ip from Packet1 group by dest_ip;"
+    c.execute(query)
+    res = c.fetchall()
+    print(res)
+    for i in res:
+        c.execute(f"select * from alerts where threat='Packet Length Exceeding';")
+        alerts = c.fetchall()        
+        if i[0]>10000*1000:
+            print("ALERT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+            c.execute(f"INSERT INTO Alerts (datetime, threat, description) values('{str(datetime.now())}', 'Packet Length Exceeding', 'Device is getting too many requests from a single IP {i[1]} for a long time');")
+            conn.commit()
+            for alert in alerts:
+                if i[1] not in alert:
+                    print("ALERT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+                    c.execute(f"INSERT INTO Alerts (datetime, threat, description) values('{str(datetime.now())}', 'Packet Length Exceeding', 'Device is getting too many requests from a single IP {i[1]} for a long time');")
+                    conn.commit()
+    conn.close()
