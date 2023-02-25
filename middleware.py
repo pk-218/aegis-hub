@@ -29,6 +29,10 @@ def create_table():
 
     c.execute(f"INSERT INTO Malicious_ip (ip) values ('1.1.1.1');")
     conn.commit()
+
+    c.execute(f"CREATE TABLE Rules(function text);")
+    conn.commit()
+
     conn.close()
 
 def insert_into_packet_2(json):
@@ -165,8 +169,12 @@ def packet_length():
     res = c.fetchall()
     print(res)
     for i in res:
+        c.execute(f"select * from alerts where threat='Packet Length Exceeding';")
+        alerts = c.fetchall()        
         if i[0]>10000*1000:
-            print("ALERT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-            c.execute(f"INSERT INTO Alerts (datetime, threat, description) values('{str(datetime.now())}', 'Packet Length Exceeding', 'Device is getting too many requests from a single IP {i[1]} for a long time');")
-            conn.commit()
+            for alert in alerts:
+                if i[1] not in alert:
+                    print("ALERT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+                    c.execute(f"INSERT INTO Alerts (datetime, threat, description) values('{str(datetime.now())}', 'Packet Length Exceeding', 'Device is getting too many requests from a single IP {i[1]} for a long time');")
+                    conn.commit()
     conn.close()
