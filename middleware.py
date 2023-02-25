@@ -83,7 +83,8 @@ def malicious_ip_rule(json):
     if result is not None:
         print("HEREEEE")
         try:
-            
+            c.execute(f"INSERT into Alerts values('{datetime.now()}', 'Malicious IP', 'The IP was malicious!')")
+            conn.commit()
             alert.send_mail_alert_alternative(
                 subject="Possibly Malicious IP Hit Detected",
                 sender='fryyoudude@gmail.com',
@@ -114,14 +115,16 @@ def detect_dos_attack(json):
     # print(result[0])
     
     # close the database connection and cursor
-    cursor.close()
-    db.close()
+    # cursor.close()
+    # db.close()
     
     # determine if the number of requests is above a certain threshold (e.g., 100)
     if result[0] > 50:
+
         print("Oh nooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
         try:
-            pass
+            cursor.execute(f"INSERT into Alerts values('{datetime.now()}', 'DoS', 'There were too many requests from a particular IP!')")
+            db.commit()
             # alert.send_mail_alert_alternative(
             #     subject="Brute Force attack!!",
             #     sender='fryyoudude@gmail.com',
@@ -130,6 +133,8 @@ def detect_dos_attack(json):
             # )
         except Exception as e:
             print("An error occurred:", e)
+    cursor.close()
+    db.close()
 
 
 def detect_udp_flood(json):
@@ -145,14 +150,15 @@ def detect_udp_flood(json):
     num_udp_packets, total_packet_size = c.fetchone()
     print(num_udp_packets)
     # Close the database connection
-    conn.close()
+    
 
     if type(num_udp_packets) == int and type(total_packet_size) == int:
     # Check if the number of UDP packets received or the total packet size is above the threshold for a UDP flood attack
         if (num_udp_packets > 100 or total_packet_size > 1048576): # 1 MB in bytes
             print("Oh nooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
             try:
-                pass
+                c.execute(f"INSERT into Alerts values('{datetime.now()}', 'Malicious IP', 'The IP was malicious!')")
+                conn.commit()
                 # alert.send_mail_alert_alternative(
                 #     subject="Brute Force attack!!",
                 #     sender='fryyoudude@gmail.com',
@@ -161,9 +167,10 @@ def detect_udp_flood(json):
                 # )
             except Exception as e:
                 print("An error occurred:", e)
+
         else:
             print("lol")
-        
+        conn.close()
 
 
     
