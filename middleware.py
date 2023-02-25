@@ -23,7 +23,11 @@ def create_table():
     conn.commit()
     # conn.close()
 
-    c.execute(f"CREATE TABLE Alerts(datetime text, threat, description);")
+    c.execute(f"CREATE TABLE Alerts(datetime text, threat text, description text);")
+    conn.commit()
+    # conn.close()
+
+    c.execute(f"INSERT INTO Malicious_ip (ip) values ('1.1.1.1');")
     conn.commit()
     conn.close()
 
@@ -61,12 +65,14 @@ def processor(json):
     malicious_ip_rule(json)
 
 def get_all_alerts():
+    print("Hello")
     conn = sqlite3.connect('aegis.db')
     cur = conn.cursor()
     query = "SELECT * FROM Alerts;"
     cur.execute(query)
     rows = cur.fetchall()
     conn.close()
+    print(rows)
     return rows
 
 #rules
@@ -76,6 +82,8 @@ def malicious_ip_rule(json):
     c.execute(f"SELECT * FROM malicious_ip WHERE ip = '{json['src_ip']}'")
     result = c.fetchone()
     if result is not None:
+        c.execute(f"INSERT INTO Alerts (datetime, threat, description) values('{str(datetime.now())}', 'Malicious IP', 'A request has been sent to a malicious IP');")
+        conn.commit()
         print("HEREEEE")
         try:
             alert.send_mail_alert_alternative(
@@ -84,9 +92,12 @@ def malicious_ip_rule(json):
                 recipients=['thakareprasad80@gmail.com'],
                 body="We have detected a malicious IP hit on your device"
             )
+
         except Exception as e:
             print("An error occurred:", e)
     conn.commit()
+
+
     conn.close()
 
 
@@ -131,7 +142,7 @@ def detect_udp_flood(json):
     ip_address = json['src_ip']
 
     # Query the database to get the number of UDP packets and the total packet size received from the IP address in the last 5 minutes
-    query = f"SELECT COUNT(*), SUM(packet_size) FROM your_table_name WHERE IP_address = '{ip_address}' AND protocol = 'UDP' AND time BETWEEN strftime('%s', 'now', '-5 minutes') AND strftime('%s', 'now')"
+    query = f"SELECT COUNT(*), SUM(packet_size) FROM Packet1 WHERE IP_address = '{ip_address}' AND protocol = 'UDP' AND time BETWEEN strftime('%s', 'now', '-5 minutes') AND strftime('%s', 'now')"
     c.execute(query)
     num_udp_packets, total_packet_size = c.fetchone()
 
