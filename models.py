@@ -13,6 +13,5 @@ class Packet(db.Model):
     timestamp = db.Column(db.Integer)
 
 class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(50), unique=True)
+    email = db.Column(db.String(50), unique=True, primary_key=True)
     password = db.Column(db.String(256), unique=True)
