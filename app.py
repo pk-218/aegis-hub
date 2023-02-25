@@ -37,6 +37,6 @@ def processor():
     return "HELLO"
 
 if __name__ == "__main__":
-    middleware.create_table()
+    # middleware.create_table()
     app.run(debug=False, port=8000)
 

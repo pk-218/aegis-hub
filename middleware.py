@@ -63,6 +63,7 @@ def insert_into_alert(json):
 
 def processor(json):
     malicious_ip_rule(json)
+    packet_length()
 
 def get_all_alerts():
     print("Hello")
@@ -163,7 +164,7 @@ def packet_length():
     res = c.fetchall()
     print(res)
     for i in res:
-        if i>10000:
+        if i[0]>10000:
             print("ALERT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
             c.execute(f"INSERT INTO Alerts (datetime, threat, description) values('{str(datetime.now())}', 'Packet Length Exceeding', 'Device is getting too many requests from a single IP for a long time');")
             conn.commit()
