@@ -3,6 +3,7 @@ from flask_mailman import Mail
 import os
 import json
 import middleware
+import requests
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///aegis.db"
@@ -60,7 +61,9 @@ def processor():
     middleware.processor(data)
     return "HELLO"
 
+
 if __name__ == "__main__":
-    # middleware.create_table()
+    middleware.create_table()
+    # data = requests.get("https://www.abuseipdb.com/check/[IP]/json?key=[API_KEY]&days=1")
     app.run(debug=False, port=8000)
 
