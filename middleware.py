@@ -1,6 +1,7 @@
 import sqlite3, alert, os
 from datetime import datetime
 from flask import Flask
+import time
 
 app = Flask(__name__)
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
@@ -15,7 +16,7 @@ print("Wow!")
 def create_table():
     conn = sqlite3.connect('aegis.db')
     c = conn.cursor()
-    c.execute(f"CREATE TABLE Packet1(id int PRIMARY_KEY AUTO_INCREMENT, src_ip text, dest_ip text, src_port int, dest_port int, protocol int,size int);")
+    c.execute(f"CREATE TABLE Packet1(id int PRIMARY_KEY AUTO_INCREMENT, src_ip text, dest_ip text, src_port int, dest_port int, protocol int,size int, timestamp int);")
     conn.commit()
     # conn.close()
 
@@ -30,7 +31,7 @@ def create_table():
 def insert_into_packet_2(json):
     conn = sqlite3.connect('aegis.db')
     c = conn.cursor()
-    c.execute(f"INSERT INTO Packet1 (src_ip, dest_ip, src_port, dest_port, protocol, size) VALUES (?,?,?,?,?,?);", (json["src_ip"], json["dest_ip"], json["src_port"], json["dest_port"], json["protocol"], json["size"]))
+    c.execute(f"INSERT INTO Packet1 (src_ip, dest_ip, src_port, dest_port, protocol, size, timestamp) VALUES (?,?,?,?,?,?,?);", (json["src_ip"], json["dest_ip"], json["src_port"], json["dest_port"], json["protocol"], json["size"], int(time.time())))
     conn.commit()
     conn.close()
 
@@ -121,7 +122,7 @@ def detect_dos_attack(json):
             )
         except Exception as e:
             print("An error occurred:", e)
-            
+
 
 def detect_udp_flood(json):
     # Connect to the database

@@ -1,5 +1,5 @@
 from flask_sqlalchemy import SQLAlchemy
-
+from datetime import datetime
 db = SQLAlchemy()
 
 class Packet(db.Model):
@@ -10,6 +10,7 @@ class Packet(db.Model):
     dest_port = db.Column(db.Integer)
     protocol = db.Column(db.Integer)
     size = db.Column(db.Integer)
+    timestamp = db.Column(db.Integer)
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)

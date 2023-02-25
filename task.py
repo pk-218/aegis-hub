@@ -1,21 +1,15 @@
 import sqlite3
 
-# Connect to the database file
 conn = sqlite3.connect('aegis.db')
+c = conn.cursor()
+c.execute(f"CREATE TABLE Packet1(id int PRIMARY_KEY AUTO_INCREMENT, src_ip text, dest_ip text, src_port int, dest_port int, protocol int,size int, timestamp int);")
+conn.commit()
+# conn.close()
 
-# Create a cursor object
-cur = conn.cursor()
+c.execute(f"CREATE TABLE Malicious_ip(ip text);")
+conn.commit()
+# conn.close()
 
-# Define the SQL query
-query = "SELECT * FROM Alerts;"
-
-# Execute the query and fetch all results
-cur.execute(query)
-rows = cur.fetchall()
-
-# Print the results
-for row in rows:
-    print(row)
-
-# Close the database connection
+c.execute(f"CREATE TABLE Alerts(datetime text, threat, description);")
+conn.commit()
 conn.close()
