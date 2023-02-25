@@ -99,19 +99,20 @@ def malicious_ip_rule(json):
 
 def detect_dos_attack(json):
     # establish a connection to your database
-    db = sqlite3.connect("aegis.db")
+    conn = sqlite3.connect('aegis.db')
+    c = conn.cursor()
 
     ip_address = json['src_ip']
     
     # create a cursor object to execute SQL queries
-    cursor = db.cursor()
+    # cursor = db.cursor()
     
     # execute the SQL query to count the number of requests from the given IP address in the last 5 minutes
     query = "SELECT COUNT(*) AS num_requests FROM Packet1 WHERE src_ip = ? AND timestamp BETWEEN strftime('%s', 'now', '-5 minutes') AND strftime('%s', 'now')"
-    cursor.execute(query, (ip_address,))
+    c.execute(query, (ip_address,))
     
     # fetch the query results
-    result = cursor.fetchone()
+    result = c.fetchone()
     # print(result[0])
     
     # close the database connection and cursor
@@ -119,12 +120,11 @@ def detect_dos_attack(json):
     # db.close()
     
     # determine if the number of requests is above a certain threshold (e.g., 100)
-    if result[0] > 50:
-
+    if result[0] > 500:
         print("Oh nooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
         try:
-            cursor.execute(f"INSERT into Alerts values('{datetime.now()}', 'DoS', 'There were too many requests from a particular IP!')")
-            db.commit()
+            c.execute(f"INSERT into Alerts values('{datetime.now()}', 'DoS', 'There were too many requests from a particular IP!')")
+            conn.commit()
             # alert.send_mail_alert_alternative(
             #     subject="Brute Force attack!!",
             #     sender='fryyoudude@gmail.com',
@@ -133,8 +133,7 @@ def detect_dos_attack(json):
             # )
         except Exception as e:
             print("An error occurred:", e)
-    cursor.close()
-    db.close()
+    conn.close()
 
 
 def detect_udp_flood(json):
@@ -157,7 +156,7 @@ def detect_udp_flood(json):
         if (num_udp_packets > 100 or total_packet_size > 1048576): # 1 MB in bytes
             print("Oh nooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
             try:
-                c.execute(f"INSERT into Alerts values('{datetime.now()}', 'Malicious IP', 'The IP was malicious!')")
+                c.execute(f"INSERT into Alerts values('{datetime.now()}', 'UDP Flooding', 'UDP Flooding!')")
                 conn.commit()
                 # alert.send_mail_alert_alternative(
                 #     subject="Brute Force attack!!",
@@ -185,7 +184,7 @@ def packet_length():
     for i in res:
         c.execute(f"select * from alerts where threat='Packet Length Exceeding';")
         alerts = c.fetchall()        
-        if i[0]>10000*1000:
+        if i[0]>10000*10000:
             print("ALERT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
             c.execute(f"INSERT INTO Alerts (datetime, threat, description) values('{str(datetime.now())}', 'Packet Length Exceeding', 'Device is getting too many requests from a single IP {i[1]} for a long time');")
             conn.commit()
