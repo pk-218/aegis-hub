@@ -77,7 +77,7 @@ def get_all_alerts():
     return rows
 
 #rules
-def malicious_ip_rule():
+def malicious_ip_rule(json):
     conn = sqlite3.connect('aegis.db')
     c = conn.cursor()
     c.execute(f"SELECT * FROM malicious_ip WHERE ip = '{json['src_ip']}'")
@@ -94,8 +94,8 @@ def malicious_ip_rule():
                 body="We have detected a malicious IP hit on your device"
             )
 
-            except Exception as e:
-                print("An error occurred:", e)
+        except Exception as e:
+            print("An error occurred:", e)
         conn.commit()
 
 
